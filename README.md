@@ -38,7 +38,13 @@ Both full-duplex and half-duplex RS232/485 transceivers are supported. Callback 
 
 ## Installation
 
-#### Library Manager
+NOTE :
+ This library will appear as ModbuMaster_OBJ, I wanted to keep the possibility to switch between the original and this revision.
+ I renamend files (.h an .cpp) to avoid any collision during inclusion, but you can't include both (class names are the same!)
+
+
+
+#### Library Manager [not available for _OBJ]
 Install the library into your Arduino IDE using the Library Manager (available from IDE version 1.6.2). Open the IDE and click Sketch > Include Library > Manage Libraries&hellip;
 
 Scroll or search for `ModbusMaster`, then select the version of the library you want to install. Quit/re-launch the IDE to refresh the list; new versions are automatically added to the list, once released on GitHub.
@@ -47,6 +53,7 @@ Refer to Arduino Tutorials > Libraries [Using the Library Manager](https://www.a
 
 #### Zip Library
 Refer to Arduino Tutorials > Libraries [Importing a .zip Library](https://www.arduino.cc/en/Guide/Libraries#toc4).
+
 
 #### Manual
 Refer to Arduino Tutorials > Libraries [Manual Installation](https://www.arduino.cc/en/Guide/Libraries#toc5).
@@ -93,7 +100,7 @@ The library contains a few sketches that demonstrate use of the `ModbusMaster` l
 
 */
 
-#include <ModbusMaster.h>
+#include <ModbusMaster_obj.h>
 
 
 // instantiate ModbusMaster object
