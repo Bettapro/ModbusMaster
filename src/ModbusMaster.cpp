@@ -46,6 +46,7 @@ ModbusMaster::ModbusMaster(void)
   _idle = 0;
   _preTransmission = 0;
   _postTransmission = 0;
+  _callableObj = 0;
 }
 
 /**
@@ -83,7 +84,7 @@ void ModbusMaster::beginTransmission(uint16_t u16Address)
 // eliminate this function in favor of using existing MB request functions
 uint8_t ModbusMaster::requestFrom(uint16_t address, uint16_t quantity)
 {
-  uint8_t read;
+  uint8_t read = 0;
   // clamp to buffer length
   if (quantity > ku8MaxBufferSize)
   {
@@ -164,8 +165,22 @@ uint16_t ModbusMaster::receive(void)
 
 
 
+/**
+Set idle/pre/post callable obj.
 
+Overides the procedural callbacks functions (set for idle, preTransmission,
+postTransmission), using an object as standard receiver of these events
+(that implements ModbusMasterCallable).
 
+@see ModbusMaster::preTransmission()
+@see ModbusMaster::postTransmission()
+@see ModbusMaster::idle()
+
+*/
+void ModbusMaster::setTransmissionCallable(ModbusMasterCallable* callable){
+	_idle = _postTransmission = _preTransmission = 0;
+	_callableObj = callable;
+}
 
 
 /**
@@ -181,6 +196,7 @@ serial ports, etc. is permitted within callback function.
 void ModbusMaster::idle(void (*idle)())
 {
   _idle = idle;
+  _callableObj = 0;
 }
 
 /**
@@ -196,6 +212,7 @@ Driver Enable pin, and optionally disable its Receiver Enable pin.
 void ModbusMaster::preTransmission(void (*preTransmission)())
 {
   _preTransmission = preTransmission;
+  _callableObj = 0;
 }
 
 /**
@@ -214,6 +231,7 @@ Receiver Enable pin, and disable its Driver Enable pin.
 void ModbusMaster::postTransmission(void (*postTransmission)())
 {
   _postTransmission = postTransmission;
+  _callableObj = 0;
 }
 
 
@@ -705,10 +723,16 @@ uint8_t ModbusMaster::ModbusMasterTransaction(uint8_t u8MBFunction)
   while (_serial->read() != -1);
 
   // transmit request
-  if (_preTransmission)
+  if (_callableObj)
+  {
+    _callableObj->onModbusPreTransmission();
+  }
+  else if (_preTransmission)
   {
     _preTransmission();
   }
+  
+  
   for (i = 0; i < u8ModbusADUSize; i++)
   {
     _serial->write(u8ModbusADU[i]);
@@ -716,11 +740,16 @@ uint8_t ModbusMaster::ModbusMasterTransaction(uint8_t u8MBFunction)
   
   u8ModbusADUSize = 0;
   _serial->flush();    // flush transmit buffer
-  if (_postTransmission)
+  
+  if (_callableObj)
+  {
+    _callableObj->onModbusPostTransmission();
+  }
+  else if (_postTransmission)
   {
     _postTransmission();
   }
-  
+
   // loop until we run out of time or bytes, or an error occurs
   u32StartTime = millis();
   while (u8BytesLeft && !u8MBStatus)
@@ -741,7 +770,11 @@ uint8_t ModbusMaster::ModbusMasterTransaction(uint8_t u8MBFunction)
 #if __MODBUSMASTER_DEBUG__
       digitalWrite(__MODBUSMASTER_DEBUG_PIN_B__, true);
 #endif
-      if (_idle)
+      if (_callableObj)
+      {
+        _callableObj->onModbusIdle();
+      }
+      else if (_idle)
       {
         _idle();
       }

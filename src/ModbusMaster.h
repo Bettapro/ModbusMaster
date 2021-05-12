@@ -60,6 +60,7 @@ Set to 1 to enable debugging features within class:
 // functions to manipulate words
 #include "util/word.h"
 
+#include "ModbusMasterCallable.h"
 
 /* _____CLASS DEFINITIONS____________________________________________________ */
 /**
@@ -75,6 +76,7 @@ class ModbusMaster
     void idle(void (*)());
     void preTransmission(void (*)());
     void postTransmission(void (*)());
+	void setTransmissionCallable(ModbusMasterCallable* callable);
 
     // Modbus exception codes
     /**
@@ -253,6 +255,8 @@ class ModbusMaster
     
     // master function that conducts Modbus transactions
     uint8_t ModbusMasterTransaction(uint8_t u8MBFunction);
+	
+	ModbusMasterCallable * _callableObj;
     
     // idle callback function; gets called during idle time between TX and RX
     void (*_idle)();
