@@ -81,6 +81,12 @@ void ModbusMaster::beginTransmission(uint16_t u16Address)
   u16TransmitBufferLength = 0;
 }
 
+
+void ModbusMaster::beginTransmission(uint16_t newTimeout)
+{
+  _ku16MBResponseTimeout = newTimeout;
+}
+
 // eliminate this function in favor of using existing MB request functions
 uint8_t ModbusMaster::requestFrom(uint16_t address, uint16_t quantity)
 {
@@ -830,7 +836,7 @@ uint8_t ModbusMaster::ModbusMasterTransaction(uint8_t u8MBFunction)
           break;
       }
     }
-    if ((millis() - u32StartTime) > ku16MBResponseTimeout)
+    if ((millis() - u32StartTime) > _ku16MBResponseTimeout)
     {
       u8MBStatus = ku8MBResponseTimedOut;
     }
