@@ -193,6 +193,7 @@ class ModbusMaster
     uint16_t getResponseBuffer(uint8_t);
     void     clearResponseBuffer();
     uint8_t  setTransmitBuffer(uint8_t, uint16_t);
+	uint8_t  setResponseTimeout(uint16_t);
     void     clearTransmitBuffer();
     
     void beginTransmission(uint16_t);
@@ -203,6 +204,8 @@ class ModbusMaster
     void send(uint32_t);
     uint8_t available(void);
     uint16_t receive(void);
+	
+
     
     
     uint8_t  readCoils(uint16_t, uint16_t);

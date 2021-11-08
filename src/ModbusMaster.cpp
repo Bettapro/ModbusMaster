@@ -82,7 +82,7 @@ void ModbusMaster::beginTransmission(uint16_t u16Address)
 }
 
 
-void ModbusMaster::beginTransmission(uint16_t newTimeout)
+void ModbusMaster::setResponseTimeout(uint16_t newTimeout)
 {
   _ku16MBResponseTimeout = newTimeout;
 }
